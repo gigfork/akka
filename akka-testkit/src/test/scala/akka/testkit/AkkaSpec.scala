@@ -73,12 +73,7 @@ abstract class AkkaSpec(_system: ActorSystem)
 
   final override def afterAll {
     beforeTermination()
-    system.shutdown()
-    try system.awaitTermination(5 seconds) catch {
-      case _: TimeoutException ⇒
-        system.log.warning("Failed to stop [{}] within 5 seconds", system.name)
-        println(system.asInstanceOf[ActorSystemImpl].printTree)
-    }
+    shutdownSystemAndWait(system)
     afterTermination()
     stopCoroner()
   }
@@ -102,4 +97,16 @@ abstract class AkkaSpec(_system: ActorSystem)
       else endPatterns foreach mute
     }
 
+  def shutdownSystemAndWait(system: ActorSystem): Unit = {
+    val duration = {
+      implicit val system = _system
+      5.seconds.dilated.min(10.seconds)
+    }
+    system.shutdown()
+    try system.awaitTermination(duration) catch {
+      case _: TimeoutException ⇒
+        system.log.warning("Failed to stop [{}] within 5 seconds", system.name)
+        println(system.asInstanceOf[ActorSystemImpl].printTree)
+    }
+  }
 }

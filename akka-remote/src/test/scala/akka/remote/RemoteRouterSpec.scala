@@ -71,7 +71,7 @@ akka.actor.deployment {
   val otherSystem = ActorSystem("remote-sys", conf)
 
   override def afterTermination() {
-    otherSystem.shutdown()
+    shutdownSystemAndWait(otherSystem)
   }
 
   "A Remote Router" must {

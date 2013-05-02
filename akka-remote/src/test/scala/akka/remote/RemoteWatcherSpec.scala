@@ -92,7 +92,7 @@ class RemoteWatcherSpec extends AkkaSpec(
   Seq(system, remoteSystem).foreach(muteDeadLetters("Disassociated.*", "DisassociateUnderlying.*")(_))
 
   override def afterTermination() {
-    remoteSystem.shutdown()
+    shutdownSystemAndWait(remoteSystem)
   }
 
   val heartbeatMsgB = Heartbeat(remoteAddressUid)
